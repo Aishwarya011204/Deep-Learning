@@ -1,0 +1,15 @@
+from scipy.stats import bernoulli, binom, poisson, uniform, norm
+fig,axs=plt.subplots(1,5,figsize=(16,3))
+dists=[('Bernoulli',bernoulli(.3),[0,1]),('Binomial',binom(10,.4),np.arange(11)),('Poisson',poisson(4),np.arange(15)),('Uniform',uniform(0,1),np.linspace(0,1,100)),('Gaussian',norm(0,1),np.linspace(-4,4,100))]
+for ax,(name,d,x) in zip(axs,dists):
+ y=d.pmf(x) if name in ['Bernoulli','Binomial','Poisson'] else d.pdf(x)
+ ax.plot(x,y); ax.set_title(name)
+plt.tight_layout(); plt.show()
+prev=.01; sens=.95; spec=.90
+post=sens*prev/(sens*prev+(1-spec)*(1-prev))
+print("P(Disease | Positive) =",round(post,4),f"({post*100:.2f}%)")
+N=100000; disease=np.random.rand(N)<prev
+positive=np.where(disease,np.random.rand(N)<sens,np.random.rand(N)<(1-spec))
+print("Simulated posterior =",round(disease[positive].mean(),4))
+p=np.linspace(.001,.20,200); posterior=sens*p/(sens*p+(1-spec)*(1-p))
+plt.plot(p*100,posterior*100); plt.xlabel("Disease prevalence (%)"); plt.ylabel("P(Disease | Positive) (%)"); plt.grid(); plt.show()
