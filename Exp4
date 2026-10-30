@@ -1,0 +1,13 @@
+eps=1e-12
+p=np.array([.5,.3,.2]) # observed Sunny, Cloudy, Rainy distribution
+models=[np.array([.6,.25,.15]),np.array([.3,.4,.3])]
+H=-np.sum(p*np.log2(p))
+print("Observed entropy:",H)
+for i,q in enumerate(models,1):
+ CE=-np.sum(p*np.log2(q)); KL=np.sum(p*np.log2(p/q))
+ print(f"Model {i}: cross-entropy={CE:.4f}, KL(P||Q)={KL:.4f}, H+KL={H+KL:.4f}")
+q=models[0]
+print("KL(P||Q):",np.sum(p*np.log(p/q)),"KL(Q||P):",np.sum(q*np.log(q/p)))
+y=1; prob=np.linspace(.001,.999,300)
+loss=-(y*np.log(prob)+(1-y)*np.log(1-prob))
+plt.plot(prob,loss); plt.xlabel("Predicted probability for positive class"); plt.ylabel("Binary cross-entropy"); plt.grid(); plt.show()
