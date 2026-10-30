@@ -1,0 +1,13 @@
+import tensorflow as tf
+from sklearn.preprocessing import MinMaxScaler
+series=100+10*np.sin(np.arange(365)*2*np.pi/7)+.03*np.arange(365)+np.random.normal(0,2,365)
+sc=MinMaxScaler(); scaled=sc.fit_transform(series.reshape(-1,1)).ravel()
+window=24
+Xseq=np.array([scaled[i:i+window] for i in range(len(scaled)-window)])
+Yseq=np.array([scaled[i+window] for i in range(len(scaled)-window)])
+split=int(.8*len(Xseq)); Xtr=Xseq[:split,:,None]; Xte=Xseq[split:,:,None]; ytr=Yseq[:split]; yte=Yseq[split:]
+m=keras.Sequential([keras.layers.Input((window,1)),keras.layers.SimpleRNN(32),keras.layers.Dense(1)])
+m.compile(optimizer='adam',loss='mse'); h=m.fit(Xtr,ytr,epochs=15,validation_split=.1,verbose=0)
+pred=sc.inverse_transform(m.predict(Xte,verbose=0)); actual=sc.inverse_transform(yte.reshape(-1,1))
+print("MAE:",np.mean(np.abs(pred-actual)),"RMSE:",np.sqrt(np.mean((pred-actual)**2)))
+plt.plot(actual,label='Actual');plt.plot(pred,label='Predicted');plt.legend();plt.show()
