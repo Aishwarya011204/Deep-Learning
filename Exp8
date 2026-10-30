@@ -1,0 +1,16 @@
+# XOR network built from scratch (sigmoid hidden/output)
+X=np.array([[0,0],[0,1],[1,0],[1,1]],float); y=np.array([[0],[1],[1],[0]],float)
+rng=np.random.default_rng(4); W1=rng.normal(0,1,(2,4)); b1=np.zeros((1,4)); W2=rng.normal(0,1,(4,1)); b2=np.zeros((1,1))
+sig=lambda z:1/(1+np.exp(-np.clip(z,-30,30)))
+losses=[]; lr=.8
+for ep in range(5000):
+ h=sig(X@W1+b1); out=sig(h@W2+b2); loss=np.mean((out-y)**2); losses.append(loss)
+ d2=(out-y)*out*(1-out)*2/len(X); gW2=h.T@d2; gb2=d2.sum(0,keepdims=True)
+ d1=(d2@W2.T)*h*(1-h); gW1=X.T@d1; gb1=d1.sum(0,keepdims=True)
+ W2-=lr*gW2; b2-=lr*gb2; W1-=lr*gW1; b1-=lr*gb1
+print("XOR predictions:\n",np.round(out,3))
+plt.plot(losses); plt.xlabel('Epoch'); plt.ylabel('MSE loss'); plt.show()
+xx,yy=np.meshgrid(np.linspace(-.2,1.2,100),np.linspace(-.2,1.2,100)); grid=np.c_[xx.ravel(),yy.ravel()]
+zz=(sig(sig(grid@W1+b1)@W2+b2)).reshape(xx.shape)
+plt.contourf(xx,yy,zz,levels=20); plt.scatter(X[:,0],X[:,1],c=y[:,0],edgecolor='black'); plt.title('Non-linear decision surface'); plt.show()
+# Numerical gradient check for W2[0,0]
